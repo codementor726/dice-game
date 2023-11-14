@@ -1,0 +1,95 @@
+import { BrowserRouter } from 'react-router-dom'
+import { render, fireEvent, screen } from '@testing-library/react'
+import { MainModule } from '../modules/main'
+import { expect } from 'vitest'
+import "../i18n"
+import { useDiceContext } from 'components/dice-context'
+import * as jest from 'jest'
+
+jest.mock('../components/dice-context')
+
+describe('MainModule', () => {
+  it('Inital values are correct for manual bet', () => {
+    render(
+      <BrowserRouter>
+        <MainModule />
+      </BrowserRouter>
+    )
+
+    const profitElement = screen.getByTestId('profit-on-win') as HTMLInputElement
+    const inputElement = screen.getByTestId('bet-amount') as HTMLInputElement
+    const sliderElement = screen.getByTestId('dice-slider-input') as HTMLInputElement
+    expect(sliderElement.value).toBe('50.50')
+    expect(profitElement.value).toBe('0.00')
+    expect(inputElement.value).toBe('0.00')
+
+    // Simulate typing into the input field
+
+    fireEvent.change(inputElement, { target: { value: '0.05' } })
+    // Expect the input's value to be changed
+    expect(inputElement.value).toBe('0.05')
+    expect(profitElement.value).toBe('0.05')
+  })
+  it('updates the bet value and check on profit update with default payout', () => {
+    render(
+      <BrowserRouter>
+        <MainModule />
+      </BrowserRouter>
+    )
+
+    const profitElement = screen.getByTestId('profit-on-win') as HTMLInputElement
+    const inputElement = screen.getByTestId('bet-amount') as HTMLInputElement
+    const sliderElement = screen.getByTestId('dice-slider-input') as HTMLInputElement
+    // Simulate typing into the input field
+
+    fireEvent.change(inputElement, { target: { value: '0.05' } })
+    // Expect the input's value to be changed
+    expect(inputElement.value).toBe('0.05')
+    expect(profitElement.value).toBe('0.05')
+  })
+  it('updates the slider value and check on profit update', () => {
+    render(
+      <BrowserRouter>
+        <MainModule />
+      </BrowserRouter>
+    )
+
+    const profitElement = screen.getByTestId('profit-on-win') as HTMLInputElement
+    const inputElement = screen.getByTestId('bet-amount') as HTMLInputElement
+    const sliderElement = screen.getByTestId('dice-slider-input') as HTMLInputElement
+    // Simulate typing into the input field
+
+    fireEvent.change(inputElement, { target: { value: '0.05' } })
+    // Expect the input's value to be changed
+    expect(inputElement.value).toBe('0.05')
+    expect(profitElement.value).toBe('0.05')
+
+    // Simulate slide into the input field
+    fireEvent.change(sliderElement, { target: { value: '75.25' }})
+    // Expect the input's value to be changed
+    expect(profitElement.value).toBe('0.15')
+  })
+
+  it('updates the slider value and click manual bet and check balance update', async () => {
+    const balance = jest.fn();
+    (useDiceContext as jest.Mock).mockReturnValue({
+      curBalance: balance,
+    })
+    render(
+      <BrowserRouter>
+        <MainModule />
+      </BrowserRouter>
+    )
+
+    const inputElement = screen.getByTestId('bet-amount') as HTMLInputElement
+    const sliderElement = screen.getByTestId('dice-slider-input') as HTMLInputElement
+    // Simulate typing into the input field
+    fireEvent.change(inputElement, { target: { value: '0.05' } })
+    // Simulate slide into the input field
+    fireEvent.change(sliderElement, { target: { value: '75.25' }})
+    // Simulate click bet button
+    fireEvent.click(screen.getByTestId('bet-button'))
+
+    console.log(balance);
+  })
+})
